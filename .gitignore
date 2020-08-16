@@ -1,0 +1,5 @@
+gmv
+go.sum
+
+test/folder
+test/folder/*
