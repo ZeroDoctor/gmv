@@ -97,6 +97,7 @@ func main() {
 	newFileFolderMap = usedOptions["-f"].Execute(doRec, srcFiles, targetFolder, fileFolderMap) // returns []string
 	fileFolderMap = ProcessFolder(newFileFolderMap, fileFolderMap, doRec, srcFiles, dstFolder)
 
+	fmt.Println()
 	_, ok := fileFolderMap.(bool)
 	if ok {
 		ppt.Warnln("Didn't create map...")
@@ -277,9 +278,8 @@ func MoveFiles(doGen bool, srcFiles string, folderFiles interface{}) {
 	dupMap := make(map[string]bool)
 	ffmap, _ := folderFiles.(map[string][]string)
 
-	// generate folders if -g was used TODO: move this else where
 	for key, value := range ffmap {
-		if doGen && len(value) > 0 {
+		if doGen && len(value) > 0 { // generate folders if -g was used
 			ppt.Infoln("Creating folder", key, "...")
 			err := os.MkdirAll(key, os.ModePerm)
 			if err != nil {

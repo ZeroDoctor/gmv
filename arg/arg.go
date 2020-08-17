@@ -46,7 +46,6 @@ func HandleArgs(options []string, exec map[string]*ExecuteArgs) map[string]*Exec
 				help, ok := exec["-h"]
 				if ok {
 					help.Execute([]string{})
-					os.Exit(1)
 				}
 				ppt.Warnln("No usage available...") // could not find usage
 				os.Exit(1)

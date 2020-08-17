@@ -17,11 +17,12 @@ func GetFilesThatMatch(files []string, target map[string][]string) {
 	for key, value := range target {
 		prev := len(target[key])
 		for _, pat := range value { // [.jpg, .jpeg, ...]
-
 			if len(pat) <= 0 {
 				continue
 			}
-			for _, file := range files { // [pic.jpg, other.jpeg, cat.jpg, ...]
+
+			tempFiles := files
+			for i, file := range tempFiles { // [pic.jpg, other.jpeg, cat.jpg, ...]
 				matched, err := regexp.MatchString(pat, file)
 				if err != nil {
 					ppt.Errorln("Failed to match", pat, "with", file)
@@ -30,6 +31,7 @@ func GetFilesThatMatch(files []string, target map[string][]string) {
 				if matched {
 					target[key] = append(target[key], file)
 					foundCount++
+					deleteElement(files, i) // untested
 				}
 			}
 		}
@@ -38,6 +40,13 @@ func GetFilesThatMatch(files []string, target map[string][]string) {
 	}
 
 	ppt.Infoln("Matched", foundCount, "files...")
+}
+
+func deleteElement(arr []string, i int) []string {
+	copy(arr[i:], arr[i+1:]) // Shift a[i+1:] left one index.
+	arr[len(arr)-1] = ""     // Erase last element
+	arr = arr[:len(arr)-1]
+	return arr
 }
 
 func findNewPath(file, srcFiles, dstFolder string) string {
@@ -59,7 +68,7 @@ func findNewPath(file, srcFiles, dstFolder string) string {
 func checkDups(path string, dupMap map[string]bool) bool {
 	_, ok := dupMap[path]
 	if ok {
-		ppt.Warnln("Found duplicate file", path, " would you like to overwrite? (y/n):")
+		ppt.Warnln("Found duplicate file", path, "would you like to overwrite? (y/n):")
 		reader := bufio.NewReader(os.Stdin)
 		char, _, err := reader.ReadRune()
 		if err != nil {
