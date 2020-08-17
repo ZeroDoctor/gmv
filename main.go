@@ -93,8 +93,7 @@ func main() {
 	newFileFolderMap := usedOptions["-t"].Execute(targetPattern, fileFolderMap) // returns map[string][]string
 	fileFolderMap = ProcessTarget(newFileFolderMap, fileFolderMap)
 
-	targetFolder := usedOptions["-f"].Value
-	ppt.Infoln(targetFolder)                                                                   // path to folder/files  to be processed
+	targetFolder := usedOptions["-f"].Value                                                    // path to folder/files  to be processed
 	newFileFolderMap = usedOptions["-f"].Execute(doRec, srcFiles, targetFolder, fileFolderMap) // returns []string
 	fileFolderMap = ProcessFolder(newFileFolderMap, fileFolderMap, doRec, srcFiles, dstFolder)
 
