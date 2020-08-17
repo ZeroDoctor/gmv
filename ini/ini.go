@@ -3,6 +3,7 @@ package ini
 import (
 	"io/ioutil"
 	"path/filepath"
+	"runtime"
 	"strings"
 
 	ppt "github.com/zerodoctor/goprettyprinter"
@@ -25,7 +26,12 @@ func ParseFile(path string) (map[string]string, error) {
 		return nil, err
 	}
 
-	lines := strings.Split(string(data), "\n")
+	newlineChar := "\n"
+	if runtime.GOOS == "windows" {
+		newlineChar = "\r\n"
+	}
+
+	lines := strings.Split(string(data), newlineChar)
 
 	for i := 0; i < len(lines); i++ {
 		j := i + 1

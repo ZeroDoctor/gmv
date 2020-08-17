@@ -1,7 +1,11 @@
 package main
 
 import (
+	"bufio"
+	"os"
+	"path/filepath"
 	"regexp"
+	"strings"
 
 	ppt "github.com/zerodoctor/goprettyprinter"
 )
@@ -34,4 +38,39 @@ func GetFilesThatMatch(files []string, target map[string][]string) {
 	}
 
 	ppt.Infoln("Matched", foundCount, "files...")
+}
+
+func findNewPath(file, srcFiles, dstFolder string) string {
+	index := 0
+	newIndex := strings.LastIndex(file, "/")
+	if newIndex != -1 {
+		index = newIndex + 1
+	}
+	newPath := dstFolder + "/" + file[index:]
+	newPath, err := filepath.Abs(newPath)
+	if err != nil {
+		ppt.Errorln("Couldn't not find relative path of", srcFiles)
+		panic(err)
+	}
+
+	return newPath
+}
+
+func checkDups(path string, dupMap map[string]bool) bool {
+	_, ok := dupMap[path]
+	if ok {
+		ppt.Warnln("Found duplicate file", path, " would you like to overwrite? (y/n):")
+		reader := bufio.NewReader(os.Stdin)
+		char, _, err := reader.ReadRune()
+		if err != nil {
+			ppt.Errorln("Failed to read input")
+			panic(err)
+		}
+		if char == 'n' {
+			return false
+		}
+	}
+	dupMap[path] = true
+
+	return true
 }

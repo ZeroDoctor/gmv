@@ -187,6 +187,7 @@ func Folder(inter ...interface{}) interface{} {
 
 	count := 0
 	var files []string // get current list of files
+	ppt.Infoln("Searching in", srcFiles, "...")
 	err = filepath.Walk(srcFiles, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			ppt.Errorln("Couldn't find directory named:", srcFiles)
@@ -198,8 +199,8 @@ func Folder(inter ...interface{}) interface{} {
 		}
 
 		path = path[len(srcFiles)+1:]
-
-		if !doRec && strings.Contains(path, "/") {
+		path = strings.ReplaceAll(path, "\\", "/")
+		if !doRec && (strings.Contains(path, "/")) {
 			return nil
 		}
 
@@ -271,11 +272,13 @@ func DstFolder(inter ...interface{}) interface{} {
 // MoveFiles : move mapped files to folder
 func MoveFiles(doGen bool, srcFiles string, folderFiles interface{}) {
 
+	dupMap := make(map[string]bool)
 	ffmap, _ := folderFiles.(map[string][]string)
+
 	// generate folders if -g was used TODO: move this else where
 	for key, value := range ffmap {
 		if doGen && len(value) > 0 {
-			ppt.Infoln("Creating folder", key)
+			ppt.Infoln("Creating folder", key, "...")
 			err := os.MkdirAll(key, os.ModePerm)
 			if err != nil {
 				ppt.Errorln("Couldn't create folder:", key)
@@ -284,12 +287,16 @@ func MoveFiles(doGen bool, srcFiles string, folderFiles interface{}) {
 		}
 
 		for _, file := range value {
-			newPath := key + "/" + file
-			err := os.Rename(srcFiles+"/"+file, newPath)
+			newPath := findNewPath(file, srcFiles, key)
+			notDup := checkDups(newPath, dupMap)
+			var err error
+			if notDup {
+				err = os.Rename(srcFiles+"/"+file, newPath)
+			}
 			if err != nil {
 				ppt.Errorln("Couldn't move file:", file, "to:", newPath)
 				ppt.Errorln("\t", err.Error())
-			} else {
+			} else if notDup {
 				ppt.Infoln("moved:", file, "to", newPath, "...")
 			}
 		}
