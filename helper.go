@@ -21,17 +21,22 @@ func GetFilesThatMatch(files []string, target map[string][]string) {
 				continue
 			}
 
-			tempFiles := files
+			tempFiles := make([]string, len(files))
+			copy(tempFiles, files)
 			for i, file := range tempFiles { // [pic.jpg, other.jpeg, cat.jpg, ...]
 				matched, err := regexp.MatchString(pat, file)
 				if err != nil {
 					ppt.Errorln("Failed to match", pat, "with", file)
 					ppt.Errorln("\t", err.Error())
 				}
+				ppt.Infoln("Checking: ", file)
 				if matched {
 					target[key] = append(target[key], file)
+					deleteElement(files, i-foundCount) // untested
 					foundCount++
-					deleteElement(files, i) // untested
+					ppt.Infoln("Found File: ", file)
+					ppt.Infoln("List: ", files)
+					ppt.Infoln("List: ", tempFiles)
 				}
 			}
 		}
@@ -67,7 +72,7 @@ func findNewPath(file, srcFiles, dstFolder string) string {
 
 func checkDups(path string, dupMap map[string]bool) bool {
 	_, ok := dupMap[path]
-	if ok {
+	if ok || fileExists(path) {
 		ppt.Warnln("Found duplicate file", path, "would you like to overwrite? (y/n):")
 		reader := bufio.NewReader(os.Stdin)
 		char, _, err := reader.ReadRune()
@@ -82,4 +87,13 @@ func checkDups(path string, dupMap map[string]bool) bool {
 	dupMap[path] = true
 
 	return true
+}
+
+func fileExists(filename string) bool {
+	info, err := os.Stat(filename)
+
+	if os.IsNotExist(err) {
+		return false
+	}
+	return !info.IsDir()
 }
