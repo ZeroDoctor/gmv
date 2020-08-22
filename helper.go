@@ -29,14 +29,11 @@ func GetFilesThatMatch(files []string, target map[string][]string) {
 					ppt.Errorln("Failed to match", pat, "with", file)
 					ppt.Errorln("\t", err.Error())
 				}
-				ppt.Infoln("Checking: ", file)
+
 				if matched {
 					target[key] = append(target[key], file)
 					deleteElement(files, i-foundCount) // untested
 					foundCount++
-					ppt.Infoln("Found File: ", file)
-					ppt.Infoln("List: ", files)
-					ppt.Infoln("List: ", tempFiles)
 				}
 			}
 		}
