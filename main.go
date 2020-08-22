@@ -54,7 +54,7 @@ func main() {
 	}
 	ppt.SetOS(runtime.GOOS)
 
-	// setup optional arguments by "mapping" arguments to functions
+	// setup optional arguments by "mapping" arguments to their function
 	config := arg.CreateArg("-c", "$path", Config)
 	folder := arg.CreateArg("-f", "$path", Folder)
 	target := arg.CreateArg("-t", "$user", Target)
@@ -78,23 +78,23 @@ func main() {
 
 	usedOptions := arg.HandleArgs(arr, argMap) // returns a map of actual user used options
 
-	usedOptions["-h"].Execute()          // returns void
-	doGen := usedOptions["-g"].Execute() // returns bool
-	doRec := usedOptions["-r"].Execute() // returns bool
+	usedOptions["-h"].Execute()          // returns void from Help()
+	doGen := usedOptions["-g"].Execute() // returns bool from Generate()
+	doRec := usedOptions["-r"].Execute() // returns bool from Recursive()
 
 	srcFiles := usedOptions["src"].Value
 	dstFolder := usedOptions["dst"].Value
 	ProcessCommands(&srcFiles, &dstFolder)
 
 	configFile := usedOptions["-c"].Value                  // path to config file
-	fileFolderMap := usedOptions["-c"].Execute(configFile) // returns map[string]string
+	fileFolderMap := usedOptions["-c"].Execute(configFile) // returns map[string]string from Config()
 
 	targetPattern := usedOptions["-t"].Value                                    // a regular expression to get matched file names
-	newFileFolderMap := usedOptions["-t"].Execute(targetPattern, fileFolderMap) // returns map[string][]string
+	newFileFolderMap := usedOptions["-t"].Execute(targetPattern, fileFolderMap) // returns map[string][]string from Target()
 	fileFolderMap = ProcessTarget(newFileFolderMap, fileFolderMap)
 
 	targetFolder := usedOptions["-f"].Value                                                    // path to folder/files  to be processed
-	newFileFolderMap = usedOptions["-f"].Execute(doRec, srcFiles, targetFolder, fileFolderMap) // returns []string
+	newFileFolderMap = usedOptions["-f"].Execute(doRec, srcFiles, targetFolder, fileFolderMap) // returns []string from Folder()
 	fileFolderMap = ProcessFolder(newFileFolderMap, fileFolderMap, doRec, srcFiles, dstFolder)
 
 	fmt.Println()
@@ -278,7 +278,7 @@ func MoveFiles(doGen bool, srcFiles string, folderFiles interface{}) {
 	dupMap := make(map[string]bool)
 	ffmap, _ := folderFiles.(map[string][]string)
 
-	for key, value := range ffmap {
+	for key, value := range ffmap { // map[key = folder it needs to be in] value = file that needs to be moved
 		if doGen && len(value) > 0 { // generate folders if -g was used
 			ppt.Infoln("Creating folder", key, "...")
 			err := os.MkdirAll(key, os.ModePerm)
@@ -290,16 +290,15 @@ func MoveFiles(doGen bool, srcFiles string, folderFiles interface{}) {
 
 		for _, file := range value {
 			newPath := findNewPath(file, srcFiles, key)
-			notDup := checkDups(newPath, dupMap)
-			var err error
-			if notDup {
-				err = os.Rename(srcFiles+"/"+file, newPath)
-			}
-			if err != nil {
-				ppt.Errorln("Couldn't move file:", file, "to:", newPath)
-				ppt.Errorln("\t", err.Error())
-			} else if notDup {
-				ppt.Infoln("moved:", file, "to", newPath, "...")
+			okay := checkDups(newPath, dupMap)
+			if okay {
+				err := os.Rename(srcFiles+"/"+file, newPath)
+				if err != nil {
+					ppt.Errorln("Couldn't move file:", file, "to:", key)
+					ppt.Errorln("\t", err.Error())
+				}
+
+				ppt.Infoln("moved:", file, "to", key, "...")
 			}
 		}
 	}

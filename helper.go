@@ -10,9 +10,9 @@ import (
 	ppt "github.com/zerodoctor/goprettyprinter"
 )
 
-// GetFilesThatMatch :
+// GetFilesThatMatch : gosh I feel this needs some work
 func GetFilesThatMatch(files []string, target map[string][]string) {
-	// okay 3 nested for loops is not the best, but it must be done
+	// okay 3 nested for loops is not the best, but it must be done... maybe an array would be better
 	foundCount := 0
 	for key, value := range target {
 		prev := len(target[key])

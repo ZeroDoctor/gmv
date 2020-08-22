@@ -35,7 +35,7 @@ func ParseFile(path string) (map[string]string, error) {
 
 	for i := 0; i < len(lines); i++ {
 		j := i + 1
-		for j < len(lines) && len(lines[j]) > 0 && lines[j][0] != '[' {
+		for j < len(lines) && len(lines[j]) > 0 && lines[j][0] != '[' { // while loop
 			if len(strings.Trim(lines[j], " ")) > 0 {
 				key := strings.Trim(lines[i], "[]") // removes '[]' around the directories
 				result[key] += lines[j] + ","

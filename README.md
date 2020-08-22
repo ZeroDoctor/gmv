@@ -4,7 +4,7 @@ The purpose of this program is to move large sets of files given a [**regular ex
 
 ## Usage
 
-<code>
+```
     usage: gmv [options] [src dst]
 
         src - path to source files
@@ -19,7 +19,24 @@ The purpose of this program is to move large sets of files given a [**regular ex
         -h		prints out usages of this program
         -g		generates folders if they do not exisit
         -r		recursively find files in subdirectories
-</code>
+```
+
+To create a folder use the '[]' to mark string as folder. To places file in said folder simply place a regular expression under it.
+
+```ini
+    [docs]
+    \.docx
+    \.doc
+
+    [pics]
+    \.jpeg
+    \.jpg
+
+    [pics/png]
+    \.png
+```
+
+This will put any word documents in a folder called 'docs' and will put jpegs in the folder called 'pics' while placing pngs in the 'pics' subfolder called 'png'
 
 ## Install
 
