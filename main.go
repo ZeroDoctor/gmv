@@ -59,6 +59,7 @@ func main() {
 	folder := arg.CreateArg("-f", "$path", Folder)
 	target := arg.CreateArg("-t", "$user", Target)
 	help := arg.CreateArg("-h", "", Help)
+	version := arg.CreateArg("-v", "", Version)
 	gen := arg.CreateArg("-g", "", Generate)
 	rec := arg.CreateArg("-r", "", Recursive)
 	ignore := arg.CreateArg("-i", "$multipath", Ignore)
@@ -72,6 +73,7 @@ func main() {
 	argMap["-f"] = folder
 	argMap["-t"] = target
 	argMap["-h"] = help
+	argMap["-v"] = version
 	argMap["-g"] = gen
 	argMap["-r"] = rec
 	argMap["-i"] = ignore
@@ -80,7 +82,8 @@ func main() {
 
 	usedOptions := arg.HandleArgs(arr, argMap) // returns a map of actual user used options
 
-	usedOptions["-h"].Execute()          // returns void from Help()
+	usedOptions["-h"].Execute() // returns void from Help()
+	usedOptions["-v"].Execute()
 	doGen := usedOptions["-g"].Execute() // returns bool from Generate()
 	doRec := usedOptions["-r"].Execute() // returns bool from Recursive()
 
@@ -216,7 +219,6 @@ func Folder(inter ...interface{}) interface{} {
 				return nil
 			}
 		}
-		ppt.Infoln(path)
 
 		count++
 		files = append(files, path)
@@ -254,6 +256,19 @@ options:
 	-h		prints out usages of this program
 	-g		generates folders if they do not exisit
 	-r		recursively find files in subdirectories
+	`)
+
+	os.Exit(0)
+
+	return result
+}
+
+// Version :
+func Version(inter ...interface{}) interface{} {
+	var result interface{}
+
+	fmt.Println(`
+gmv version: v1.1.0
 	`)
 
 	os.Exit(0)
