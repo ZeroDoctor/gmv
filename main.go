@@ -61,6 +61,7 @@ func main() {
 	help := arg.CreateArg("-h", "", Help)
 	gen := arg.CreateArg("-g", "", Generate)
 	rec := arg.CreateArg("-r", "", Recursive)
+	ignore := arg.CreateArg("-i", "$multipath", Ignore)
 
 	src := arg.CreateArg("src", "$command", SrcFiles)
 	dst := arg.CreateArg("dst", "$command", DstFolder)
@@ -73,6 +74,7 @@ func main() {
 	argMap["-h"] = help
 	argMap["-g"] = gen
 	argMap["-r"] = rec
+	argMap["-i"] = ignore
 	argMap["src"] = src
 	argMap["dst"] = dst
 
@@ -93,9 +95,10 @@ func main() {
 	newFileFolderMap := usedOptions["-t"].Execute(targetPattern, fileFolderMap) // returns map[string][]string from Target()
 	fileFolderMap = ProcessTarget(newFileFolderMap, fileFolderMap)
 
+	ignoreFolder := usedOptions["-i"].ValueArr
 	targetFolder := usedOptions["-f"].Value                                                    // path to folder/files  to be processed
 	newFileFolderMap = usedOptions["-f"].Execute(doRec, srcFiles, targetFolder, fileFolderMap) // returns []string from Folder()
-	fileFolderMap = ProcessFolder(newFileFolderMap, fileFolderMap, doRec, srcFiles, dstFolder)
+	fileFolderMap = ProcessFolder(newFileFolderMap, fileFolderMap, doRec, srcFiles, dstFolder, ignoreFolder)
 
 	fmt.Println()
 	_, ok := fileFolderMap.(bool)
@@ -169,6 +172,7 @@ func Folder(inter ...interface{}) interface{} {
 	srcFiles := inter[1].(string)
 	dstFolder := inter[2].(string)
 	fileFolderMap, ok := inter[3].(map[string][]string)
+	ignoreFolder := inter[4].([]string)
 
 	if ok { // might not need this conditional statement
 		tempMap := make(map[string][]string)
@@ -193,7 +197,7 @@ func Folder(inter ...interface{}) interface{} {
 	ppt.Infoln("Searching in", srcFiles, "...")
 	err = filepath.Walk(srcFiles, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
-			ppt.Errorln("Couldn't find directory named:", srcFiles)
+			ppt.Errorln("Couldn't find source directory named:", srcFiles)
 			os.Exit(2)
 		}
 
@@ -206,6 +210,13 @@ func Folder(inter ...interface{}) interface{} {
 		if !doRec && (strings.Contains(path, "/")) {
 			return nil
 		}
+
+		for _, i := range ignoreFolder {
+			if strings.Contains(path, i) {
+				return nil
+			}
+		}
+		ppt.Infoln(path)
 
 		count++
 		files = append(files, path)
@@ -258,6 +269,12 @@ func Generate(inter ...interface{}) interface{} {
 // Recursive : if used then will match files from subdirectories
 func Recursive(inter ...interface{}) interface{} {
 	return true
+}
+
+// Ignore :
+func Ignore(inter ...interface{}) interface{} {
+	var result interface{}
+	return result
 }
 
 // SrcFiles : not used but needed to pass into CreateArgs

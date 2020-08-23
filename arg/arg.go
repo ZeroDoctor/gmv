@@ -8,10 +8,11 @@ import (
 
 // ExecuteArgs :
 type ExecuteArgs struct {
-	Key     string
-	Option  string
-	Value   string
-	Execute func(...interface{}) interface{}
+	Key      string
+	Option   string
+	Value    string
+	ValueArr []string
+	Execute  func(...interface{}) interface{}
 }
 
 var (
@@ -56,17 +57,33 @@ func HandleArgs(options []string, exec map[string]*ExecuteArgs) map[string]*Exec
 		switch arg.Value {
 		case "$path":
 			i++
-			if options[i%len(options)][0] == '-' {
-				i--
-				arg.Value = ""
-			} else {
-				arg.Value = options[i%len(options)] + "/"
+			if i < len(options) {
+				if options[i][0] == '-' {
+					i--
+					arg.Value = ""
+				} else {
+					arg.Value = options[i] + "/"
+				}
 			}
+
+		case "$multipath":
+			j := i + 1
+			for j < len(options) {
+				if options[j][0] == '-' {
+					break
+				}
+				arg.ValueArr = append(arg.ValueArr, options[j])
+				j++
+			}
+			i = j - 1
+
 		case "$user":
 			i++
-			arg.Value = options[i%len(options)]
-		case "$command":
+			if i < len(options) {
+				arg.Value = options[i%len(options)]
+			}
 
+		case "$command":
 			arg.Value = options[i]
 			result[command[ccount]] = arg
 			delete(totalOptions, command[ccount])

@@ -28,13 +28,13 @@ func ProcessTarget(newFileFolderMap, fileFolderMap interface{}) interface{} {
 }
 
 // ProcessFolder :
-func ProcessFolder(newFileFolderMap, fileFolderMap, doRec interface{}, srcFiles, dstFolder string) interface{} {
+func ProcessFolder(newFileFolderMap, fileFolderMap, doRec interface{}, srcFiles, dstFolder string, ignoreFiles []string) interface{} {
 	var fileMap interface{}
 	_, ok := newFileFolderMap.(map[string][]string)
 	if ok {
 		fileMap = newFileFolderMap
 	} else {
-		fileMap = Folder(doRec, srcFiles, dstFolder, fileFolderMap)
+		fileMap = Folder(doRec, srcFiles, dstFolder, fileFolderMap, ignoreFiles)
 	}
 
 	return fileMap
