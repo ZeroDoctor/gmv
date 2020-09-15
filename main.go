@@ -195,23 +195,23 @@ func Folder(inter ...interface{}) interface{} {
 	}
 
 	count := 0
-	var files []string // get current list of files
-	ppt.Infoln("Searching in", srcFiles, "...")
+	var files []string                          // get current list of files
+	ppt.Infoln("Searching in", srcFiles, "...") // TODO: remove Walk function and replace for something else
 	err = filepath.Walk(srcFiles, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			ppt.Errorln("Couldn't find source directory named:", srcFiles)
-			os.Exit(2)
-		}
-
 		if info.IsDir() {
 			return nil
 		}
 
+		if err != nil {
+			ppt.Errorln("Couldn't open source directory named:", srcFiles, "\n\t", err.Error())
+			os.Exit(2)
+		}
+
 		path = path[len(srcFiles)+1:]
-		path = strings.ReplaceAll(path, "\\", "/")
-		if !doRec && (strings.Contains(path, "/")) {
+		if !doRec && (strings.Contains(path, "/") || strings.Contains(path, "\\")) {
 			return nil
 		}
+		path = strings.ReplaceAll(path, "\\", "/")
 
 		for _, i := range ignoreFolder {
 			if strings.Contains(path, i) {
