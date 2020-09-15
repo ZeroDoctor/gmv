@@ -35,7 +35,6 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"runtime"
 	"strings"
 
 	"github.com/zerodoctor/gmv/ini"
@@ -52,7 +51,7 @@ func main() {
 		arr = append(arr, "-g")
 		arr = append(arr, "-c")
 	}
-	ppt.SetOS(runtime.GOOS)
+	ppt.Init()
 
 	// setup optional arguments by "mapping" arguments to their function
 	config := arg.CreateArg("-c", "$path", Config)
