@@ -195,41 +195,14 @@ func Folder(inter ...interface{}) interface{} {
 	}
 
 	count := 0
-	var files []string                          // get current list of files
-	ppt.Infoln("Searching in", srcFiles, "...") // TODO: remove Walk function and replace for something else
-	err = filepath.Walk(srcFiles, func(path string, info os.FileInfo, err error) error {
-		if info.IsDir() {
-			return nil
-		}
-
-		if err != nil {
-			ppt.Errorln("Couldn't open source directory named:", srcFiles, "\n\t", err.Error())
-			os.Exit(2)
-		}
-
-		path = path[len(srcFiles)+1:]
-		if !doRec && (strings.Contains(path, "/") || strings.Contains(path, "\\")) {
-			return nil
-		}
-		path = strings.ReplaceAll(path, "\\", "/")
-
-		for _, i := range ignoreFolder {
-			if strings.Contains(path, i) {
-				return nil
-			}
-		}
-
-		count++
-		files = append(files, path)
-		return nil
-	})
-
-	ppt.Infoln("Found", count, "files...")
-
+	ppt.Infoln("Searching in", srcFiles, "...")
+	files, err := myWalk(srcFiles, "", ignoreFolder, &count, doRec)
 	if err != nil {
-		ppt.Errorln("Couldn't access folder")
+		ppt.Errorln("Couldn't access folder", err.Error())
 		panic(err)
 	}
+
+	ppt.Infoln("Found", count, "files...")
 
 	GetFilesThatMatch(files, fileFolderMap) // actually matches files using the desired pattern
 
@@ -320,7 +293,10 @@ func MoveFiles(doGen bool, srcFiles string, folderFiles interface{}) {
 		}
 
 		for _, file := range value {
-			newPath := findNewPath(file, srcFiles, key)
+			newPath, same := findNewPath(file, srcFiles, key)
+			if same {
+				continue // its already in the target folder
+			}
 			okay := checkDups(newPath, dupMap)
 			if okay {
 				err := os.Rename(srcFiles+"/"+file, newPath)

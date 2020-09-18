@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -51,7 +52,7 @@ func deleteElement(arr []string, i int) []string {
 	return arr
 }
 
-func findNewPath(file, srcFiles, dstFolder string) string {
+func findNewPath(file, srcFiles, dstFolder string) (string, bool) {
 	index := 0
 	newIndex := strings.LastIndex(file, "/")
 	if newIndex != -1 {
@@ -64,7 +65,7 @@ func findNewPath(file, srcFiles, dstFolder string) string {
 		panic(err)
 	}
 
-	return newPath
+	return newPath, (dstFolder+"/" == "./"+file[:index])
 }
 
 func checkDups(path string, dupMap map[string]bool) bool {
@@ -93,4 +94,36 @@ func fileExists(filename string) bool {
 		return false
 	}
 	return !info.IsDir()
+}
+
+func myWalk(src, path string, ignoreFolder []string, count *int, doRec bool) ([]string, error) {
+	info, err := ioutil.ReadDir(src + "/" + path)
+	if err != nil {
+		return nil, err
+	}
+
+	var files []string
+out:
+	for _, file := range info {
+		if !file.IsDir() {
+			*count++
+			files = append(files, path+file.Name())
+		}
+
+		if doRec && file.IsDir() {
+			for _, i := range ignoreFolder {
+				if strings.Contains(file.Name(), i) || strings.Contains(path, i) {
+					continue out
+				}
+			}
+			ppt.Infoln("Searching in ", path+file.Name()+"/")
+			fileList, err := myWalk(src, path+file.Name()+"/", ignoreFolder, count, doRec)
+			if err != nil {
+				return nil, err
+			}
+			files = append(files, fileList...)
+		}
+	}
+
+	return files, nil
 }

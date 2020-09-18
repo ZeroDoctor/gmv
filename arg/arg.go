@@ -56,6 +56,7 @@ func HandleArgs(options []string, exec map[string]*ExecuteArgs) map[string]*Exec
 
 		switch arg.Value {
 		case "$path":
+			arg.Value = ""
 			i++
 			if i < len(options) {
 				if options[i][0] == '-' {
