@@ -216,18 +216,20 @@ func Help(inter ...interface{}) interface{} {
 	fmt.Println(`
 usage: gmv [options] [src dst]
 
-	src - path to source files
-	dst - moves files to specified destination folder
+	src - path to source file (can use regex for multiple files)
+	dst - moves file(s) to specified destination folder
 
 options:
 	-c		uses a config file to move file to a folder, if left blank 
 			it will assume config is in the same directory
 	
 	-f		moves files to a specific folder
-	-t		gets a list of files that matches user specific string *untested*
+	-t		gets a list of files that matches user specified string (same as dst)
 	-h		prints out usages of this program
-	-g		generates folders if they do not exisit
+	-g		generates folders if they do not exist
 	-r		recursively find files in subdirectories
+	-i		ignore files in specified folders
+	-v		outputs version
 	`)
 
 	os.Exit(0)
@@ -240,7 +242,7 @@ func Version(inter ...interface{}) interface{} {
 	var result interface{}
 
 	fmt.Println(`
-gmv version: v1.1.0
+gmv version: v1.0.8
 	`)
 
 	os.Exit(0)
