@@ -24,6 +24,7 @@ func GetFilesThatMatch(files []string, target map[string][]string) {
 
 			tempFiles := make([]string, len(files))
 			copy(tempFiles, files)
+			files = make([]string, 0, len(tempFiles))
 			for i, file := range tempFiles { // [pic.jpg, other.jpeg, cat.jpg, ...]
 				matched, err := regexp.MatchString(pat, file)
 				if err != nil {
@@ -33,7 +34,7 @@ func GetFilesThatMatch(files []string, target map[string][]string) {
 
 				if matched {
 					target[key] = append(target[key], file)
-					deleteElement(files, i-foundCount) // untested
+					files = append(files, file)
 					foundCount++
 				}
 			}
@@ -43,13 +44,6 @@ func GetFilesThatMatch(files []string, target map[string][]string) {
 	}
 
 	ppt.Infoln("Matched", foundCount, "files...")
-}
-
-func deleteElement(arr []string, i int) []string {
-	copy(arr[i:], arr[i+1:]) // Shift a[i+1:] left one index.
-	arr[len(arr)-1] = ""     // Erase last element
-	arr = arr[:len(arr)-1]
-	return arr
 }
 
 func findNewPath(file, srcFiles, dstFolder string) (string, bool) {
