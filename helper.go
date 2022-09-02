@@ -25,7 +25,7 @@ func GetFilesThatMatch(files []string, target map[string][]string) {
 			tempFiles := make([]string, len(files))
 			copy(tempFiles, files)
 			files = make([]string, 0, len(tempFiles))
-			for i, file := range tempFiles { // [pic.jpg, other.jpeg, cat.jpg, ...]
+			for _, file := range tempFiles { // [pic.jpg, other.jpeg, cat.jpg, ...]
 				matched, err := regexp.MatchString(pat, file)
 				if err != nil {
 					ppt.Errorln("Failed to match", pat, "with", file)
